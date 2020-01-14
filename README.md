@@ -1,2 +1,2 @@
 # SignatureTAPI
-Draws an signature canvas from the terminal API response
+Draws a signature canvas from the terminal API response
