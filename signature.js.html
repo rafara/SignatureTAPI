@@ -1,0 +1,66 @@
+<html>
+    <head>
+        <script crossorigin="anonymous" src="https://code.jquery.com/jquery-3.3.1.slim.min.js">
+        </script>
+    </head>
+    <body>
+    </body>
+    <script>
+        //get the singauter input from 
+       //   parsedJSON.SaleToPOIResponse.PaymentResponse.PaymentResult.CapturedSignature.SignaturePoint;
+
+        var signature = "[{\"X\":\"55\",\"Y\":\"21\"},{\"X\":\"5F\",\"Y\":\"39\"},{\"X\":\"6D\",\"Y\":\"58\"},{\"X\":\"7D\",\"Y\":\"6D\"},{\"X\":\"FFFF\",\"Y\":\"FFFF\"},{\"X\":\"A5\",\"Y\":\"12\"},{\"X\":\"AB\",\"Y\":\"2C\"},{\"X\":\"B1\",\"Y\":\"4E\"},{\"X\":\"B3\",\"Y\":\"5D\"},{\"X\":\"FFFF\",\"Y\":\"FFFF\"},{\"X\":\"32\",\"Y\":\"62\"},{\"X\":\"57\",\"Y\":\"76\"},{\"X\":\"8D\",\"Y\":\"85\"},{\"X\":\"BF\",\"Y\":\"81\"},{\"X\":\"E9\",\"Y\":\"63\"},{\"X\":\"F8\",\"Y\":\"49\"},{\"X\":\"FFFF\",\"Y\":\"FFFF\"}]";
+
+        signature = $.parseJSON(signature);
+
+        var canvas = showSignature(signature);
+        var dataURL = canvas.toDataURL();
+        drawImage(dataURL);
+
+
+function showSignature(signature) {
+  const convert = (x) => x.toUpperCase() === 'FFFF' ? -1 : parseInt(x, 16);
+  const points = signature.map(( { X, Y } ) => ({ x: convert(X), y: convert(Y) }));
+
+  const max = (a, b) => a ? Math.max(a, b) : b;
+  const min = (a, b) => a ? Math.min(a, b) : b;
+
+  const minX = points.filter(({ x, y }) => x > -1).reduce((acc, { x, y }) => min(acc, x), undefined);
+  const maxX = points.filter(({ x, y }) => x > -1).reduce((acc, { x, y }) => max(acc, x), undefined);
+  const minY = points.filter(({ x, y }) => x > -1).reduce((acc, { x, y }) => min(acc, y), undefined);
+  const maxY = points.filter(({ x, y }) => x > -1).reduce((acc, { x, y }) => max(acc, y), undefined);
+
+  const canvas = document.createElement('canvas');
+  const margin = 10;
+  const width = maxX - minX;
+  const height = maxY - minY ;
+  canvas.width = width + margin * 2;
+  canvas.height = height + margin * 2;
+  canvas.style.backgroundColor = '#ffffff';
+  const ctx = canvas.getContext('2d');
+  ctx.strokeStyle = '#FFFFFF';
+  ctx.lineWidth = 5;
+
+  let connect = false;
+  points.forEach(({ x, y }) => {
+    if(x == -1 && y == -1) {
+      ctx.stroke();
+      connect = false;
+    } else if(connect) {
+      ctx.lineTo(margin + x - minX, margin + y - minY);
+    } else {
+      ctx.beginPath();
+      ctx.moveTo(margin + x - minX, margin + y - minY);
+      connect = true;
+    }
+  });
+  return canvas;
+}
+function drawImage(dataURL) {
+    resetVar = 1;
+  if(dataURL) {
+    document.body.innerHTML = "signature: <img src="+dataURL+" style=\"background: lightgray; \">";
+  }
+}
+    </script>
+</html>
